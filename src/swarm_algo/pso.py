@@ -7,10 +7,9 @@ def f(x: np.ndarray) -> float: ...
 pso = ParticleSwarmOptimizer(f, bounds=[(-5,5), (-5,5)], mode="constriction", seed=42)
 best_x, best_f, info = pso.optimize()
 
-Gợi ý preset:
-- mode="constriction" (phi1=phi2=2.05, chi=0.729) — ổn định, ít phải chỉnh.
-- mode="inertia", w=(0.9->0.4), c1=c2=2.0, velocity_clamp=0.2 (20% miền tìm kiếm).
-
+Suggested presets:
+- mode="constriction" (phi1=phi2=2.05, chi=0.729) — stable, less tuning required
+- mode="inertia", w=(0.9->0.4), c1=c2=2.0, velocity_clamp=0.2 (20% search space)
 """
 from __future__ import annotations
 
@@ -42,25 +41,25 @@ class ParticleSwarmOptimizer:
     Parameters
     ----------
     objective : Callable[[np.ndarray], float]
-        Objective function f(x) -> scalar. Receives a vector of shape (d,).
+        Objective function f(x) -> scalar. Receives a vector of shape (d,)
     bounds : Iterable[Tuple[float, float]]
-        Per-dimension (low, high) pairs. Must satisfy low < high.
+        Per-dimension (low, high) pairs. Must satisfy low < high
     n_particles : int, default 40
-        Number of particles in the swarm.
+        Number of particles in the swarm
     max_iters : int, default 300
         Maximum number of iterations.
     mode : {'constriction', 'inertia'}, default 'constriction'
-        Velocity update formulation to use.
+        Velocity update formulation to use
 
     # --- Parameters for 'constriction' ---
     phi1 : float, default 2.05
     phi2 : float, default 2.05
     chi : Optional[float], default 0.729
-        If None, χ is computed from (phi1 + phi2) using the Clerc–Kennedy formula.
+        If None, chi is computed from (phi1 + phi2) using the Clerc–Kennedy formula
 
     # --- Parameters for 'inertia' ---
     w : float | Tuple[float, float], default (0.9, 0.4)
-        If a tuple, inertia weight is linearly annealed from w_start -> w_end.
+        If a tuple, inertia weight is linearly annealed from w_start -> w_end
     c1 : float, default 2.0
     c2 : float, default 2.0
 
@@ -68,7 +67,7 @@ class ParticleSwarmOptimizer:
     topology : {'gbest', 'ring'}, default 'gbest'
     ring_neighbors : int, default 2
         Number of neighbors on each side for 'ring' topology
-        (total neighborhood size is 2*ring_neighbors + 1 including the particle itself).
+        (total neighborhood size is 2*ring_neighbors + 1 including the particle itself)
 
     # --- Velocity & boundary handling ---
     velocity_clamp : None | float | Tuple[float, float] | np.ndarray, default 0.2
@@ -77,18 +76,18 @@ class ParticleSwarmOptimizer:
         - tuple(float, float): symmetric (min_frac, max_frac)
         - ndarray of shape (d,): absolute caps for |v_j| per dimension
     boundary_mode : {'clip', 'reflect', 'random'}, default 'reflect'
-        Strategy when a position exits the bounds.
+        Strategy when a position exits the bounds
 
     # --- Misc ---
     seed : Optional[int], default None
     early_stopping_rounds : Optional[int], default None
-        Stop early if no improvement for K consecutive iterations.
+        Stop early if no improvement for K consecutive iterations
     tol : float, default 0.0
-        Minimal improvement to reset the early-stopping counter.
+        Minimal improvement to reset the early-stopping counter
     enable_position_history : bool, default False
-        Record the best position over time (useful for plotting).
+        Record the best position over time (useful for plotting)
     callback : Optional[Callable[[int, np.ndarray, np.ndarray, np.ndarray, float], Any]]
-        Per-iteration hook: (t, X, V, pbest, gbest_f).
+        Per-iteration hook: (t, X, V, pbest, gbest_f)
     """
 
     def __init__(
@@ -122,7 +121,7 @@ class ParticleSwarmOptimizer:
     ) -> None:
         self.objective = objective
         self.bounds = np.array(bounds, dtype=float)  # (d,2)
-        assert self.bounds.ndim == 2 and self.bounds.shape[1] == 2, "`bounds` must be [(low,high), ...]"
+        assert self.bounds.ndim == 2 and self.bounds.shape[1] == 2, "`bounds` must be like this: [(low,high), ...]"
         assert np.all(self.bounds[:, 0] < self.bounds[:, 1]), "Each (low,high) must have low < high"
         self.low = self.bounds[:, 0]
         self.high = self.bounds[:, 1]
@@ -277,7 +276,7 @@ class ParticleSwarmOptimizer:
         r1 = self.rng.random(size=V.shape)
         r2 = self.rng.random(size=V.shape)
         if self.mode == "constriction":
-            # v = χ * [ v + phi1*r1*(P-X) + phi2*r2*(L-X) ]
+            # v = chi * [ v + phi1*r1*(P-X) + phi2*r2*(L-X) ]
             V[:] = V + self.phi1 * r1 * (P - X) + self.phi2 * r2 * (L - X)
             V[:] = self.chi * V  # type: ignore[operator]
         else:
