@@ -15,8 +15,8 @@ class ACO:
         self.num_ant = num_ant
         self.iter = iter
         self.alpha = alpha  # pheromone importance
-        self.beta = beta    # distance importance
-        self.rho = rho      # evaporation rate
+        self.beta = beta  # distance importance
+        self.rho = rho  # evaporation rate
         self.zeta, self.distance_matrix = self.cal_distance()
         self.Q = Q
         self.theta_matrix = np.ones((len(self.colony), len(self.colony)))
@@ -26,8 +26,7 @@ class ACO:
         colony3d = self.colony[:, np.newaxis, :]
         colony3d_transform = self.colony[np.newaxis, :, :]
 
-        distance_matrix = np.sqrt(
-            np.sum((colony3d - colony3d_transform)**2, axis=2))
+        distance_matrix = np.sqrt(np.sum((colony3d - colony3d_transform) ** 2, axis=2))
         zeta = np.where(distance_matrix > 0, 1.0 / distance_matrix, 0)
         return zeta, distance_matrix
 
@@ -41,7 +40,7 @@ class ACO:
         return np.sum(self.distance_matrix[ant_path[0], ant_path[1]])
 
     def update_pheromone(self, ant_paths):
-        self.theta_matrix *= (1-self.rho)
+        self.theta_matrix *= 1 - self.rho
         for path in ant_paths:
             delta = self.Q / self.distance_matrix[path[0], path[1]]
             self.theta_matrix[path[0], path[1]] += delta
@@ -58,8 +57,7 @@ class ACO:
         probs = theta**self.alpha * eta**self.beta
         prob_sum = np.sum(probs)
         if prob_sum == 0:
-            unvisited = [i for i in range(
-                self.n_colonies) if i not in visitted]
+            unvisited = [i for i in range(self.n_colonies) if i not in visitted]
             if unvisited:
                 return np.random.choice(unvisited)
             return None
@@ -70,7 +68,7 @@ class ACO:
 
     def run(self, verbose=True):
         best_path = None
-        best_fitness = float('inf')
+        best_fitness = float("inf")
 
         for i in range(self.iter):
             all_paths = []

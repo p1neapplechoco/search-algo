@@ -50,7 +50,7 @@ def objective_function(ans, items):
     return total_profit
 
 
-def knapsack_firefly(PROBLEM: int):
+def knapsack_firefly(PROBLEM: int, visualize: bool = False):
     capacity, items, weights, solution = get_problem_infos(PROBLEM)
     num_items = len(items)
 
@@ -62,9 +62,7 @@ def knapsack_firefly(PROBLEM: int):
                 total_weight += weights[i]
                 total_profit += items[i]
 
-        # Penalty for exceeding capacity
         if total_weight > capacity:
-            # Penalize based on how much we exceed
             penalty = (total_weight - capacity) * max(items)
             return max(0, total_profit - penalty)
 
@@ -76,12 +74,12 @@ def knapsack_firefly(PROBLEM: int):
         beta=1.0,
         gamma=0.01,  # Lower gamma for slower intensity decay
         alpha=0.5,  # Higher alpha for more exploration
+        problem_type="binary",  # Knapsack is a binary problem
     )
 
     firefly.set_objective_function(fitness_function)
 
-    best_fitness_over_time = []
-    answer, profit = firefly.run(NUM_OF_GENERATIONS)
+    answer, profit, history = firefly.run(NUM_OF_GENERATIONS, visualize=visualize)
 
     optimal_profit = objective_function(solution, items)
 
@@ -93,4 +91,5 @@ def knapsack_firefly(PROBLEM: int):
 
 
 if __name__ == "__main__":
-    knapsack_firefly(PROBLEM=18)
+    # Set visualize=True to see the convergence plot
+    knapsack_firefly(PROBLEM=7, visualize=True)
