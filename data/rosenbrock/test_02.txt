@@ -1,9 +1,10 @@
-# Test Case 2: All zeros
+# Test Case 2: Extreme positive (all 10s)
 # Dimension: 5
-# Expected value: 4.000000
+# Initial value: f(x) = 3240324.000000
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
-0.000000
-0.000000
-0.000000
-0.000000
-0.000000
+10.000000
+10.000000
+10.000000
+10.000000
+10.000000

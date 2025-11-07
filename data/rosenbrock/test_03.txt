@@ -1,9 +1,10 @@
-# Test Case 3: Random [-5, 5]
+# Test Case 3: Wide extreme negative [-10, -5]
 # Dimension: 5
-# Expected value: 37138.960993
+# Initial value: f(x) = 1186145.215602
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
--1.254599
-4.507143
-2.319939
-0.986585
--3.439814
+-8.127299
+-5.246428
+-6.340030
+-7.006708
+-9.219907

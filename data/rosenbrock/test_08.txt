@@ -1,9 +1,15 @@
-# Test Case 8: Random negative
-# Dimension: 5
-# Expected value: 82318.001660
+# Test Case 8: 10D extreme negative [-10, -5]
+# Dimension: 10
+# Initial value: f(x) = 5419442.996586
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
--4.082977
--3.478789
--2.376218
--2.840275
--3.543854
+-9.082977
+-8.478789
+-7.376218
+-7.840275
+-8.543854
+-6.940736
+-9.302531
+-8.539277
+-8.168191
+-7.719650

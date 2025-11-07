@@ -1,9 +1,10 @@
-# Test Case 7: Alternating 0,1
+# Test Case 7: All zeros
 # Dimension: 5
-# Expected value: 402.000000
+# Initial value: f(x) = 4.000000
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
 0.000000
-1.000000
 0.000000
-1.000000
+0.000000
+0.000000
 0.000000

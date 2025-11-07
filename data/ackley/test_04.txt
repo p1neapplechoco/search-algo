@@ -1,9 +1,10 @@
-# Test Case 4: Random [-10, 10]
+# Test Case 4: Medium range [-10, 10]
 # Dimension: 5
-# Expected value: 15.488510
+# Initial value: f(x) = 12.649800
+# Optimal: f([0,0,...,0]) = 0.0
 # Input vector:
--6.880110
--8.838328
-7.323523
-2.022300
-4.161452
+-6.331910
+-3.915155
+0.495129
+-1.361100
+-4.175417

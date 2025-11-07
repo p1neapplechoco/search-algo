@@ -1,9 +1,10 @@
-# Test Case 6: All 5s
+# Test Case 6: All zeros (optimal)
 # Dimension: 5
-# Expected value: 12.642411
+# Initial value: f(x) = 0.000000
+# Optimal: f([0,0,...,0]) = 0.0
 # Input vector:
-5.000000
-5.000000
-5.000000
-5.000000
-5.000000
+0.000000
+0.000000
+0.000000
+0.000000
+0.000000

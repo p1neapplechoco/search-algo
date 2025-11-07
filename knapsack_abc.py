@@ -80,12 +80,11 @@ def knapsack_abc(PROBLEM: int):
         limit=100,
         lb=0.0,
         ub=1.0,
-        objective_function=fitness_function,
     )
 
-    # abc.set_objective_function(fitness_function)
+    abc.set_objective_function(fitness_function)
 
-    answer, fitness = abc.run()
+    answer, fitness, fitness_history = abc.run()
     
     # Convert to binary solution
     binary_answer = (answer > 0.5).astype(int)

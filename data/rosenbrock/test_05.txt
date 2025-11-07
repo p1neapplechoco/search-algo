@@ -1,9 +1,10 @@
-# Test Case 5: Near optimal
+# Test Case 5: Alternating -10/+10
 # Dimension: 5
-# Expected value: 13.403336
+# Initial value: f(x) = 4040404.000000
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
-0.904117
-1.093982
-1.066489
-0.942468
-0.936365
+-10.000000
+10.000000
+-10.000000
+10.000000
+-10.000000

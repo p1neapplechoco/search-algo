@@ -1,9 +1,10 @@
-# Test Case 1: Optimal (all zeros)
+# Test Case 1: Extreme negative [-30, -20]
 # Dimension: 5
-# Expected value: 0.000000
+# Initial value: f(x) = 21.812432
+# Optimal: f([0,0,...,0]) = 0.0
 # Input vector:
-0.000000
-0.000000
-0.000000
-0.000000
-0.000000
+-26.254599
+-20.492857
+-22.680061
+-24.013415
+-28.439814

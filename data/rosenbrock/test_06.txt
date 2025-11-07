@@ -1,9 +1,10 @@
-# Test Case 6: All 2s
+# Test Case 6: Very wide random [-10, 10]
 # Dimension: 5
-# Expected value: 1604.000000
+# Initial value: f(x) = 1753959.073289
+# Optimal: f([1,1,...,1]) = 0.0
 # Input vector:
-2.000000
-2.000000
-2.000000
-2.000000
-2.000000
+-9.588310
+9.398197
+6.648853
+-5.753218
+-6.363501
