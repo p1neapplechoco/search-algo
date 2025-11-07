@@ -77,7 +77,7 @@ def knapsack_abc(PROBLEM: int):
         dimension=num_items,
         sn=MAX_POPULATION,
         mcn=NUM_OF_GENERATIONS,
-        limit=200,
+        limit=100,
         lb=0.0,
         ub=1.0,
         objective_function=fitness_function,

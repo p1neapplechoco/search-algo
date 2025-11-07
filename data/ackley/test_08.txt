@@ -1,0 +1,9 @@
+# Test Case 8: Large values [20, 32]
+# Dimension: 5
+# Expected value: 21.767985
+# Input vector:
+22.200854
+23.650907
+26.297077
+25.183340
+23.494750

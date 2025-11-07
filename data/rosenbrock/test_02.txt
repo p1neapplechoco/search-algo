@@ -1,0 +1,9 @@
+# Test Case 2: All zeros
+# Dimension: 5
+# Expected value: 4.000000
+# Input vector:
+0.000000
+0.000000
+0.000000
+0.000000
+0.000000

@@ -1,0 +1,9 @@
+# Test Case 5: Near optimal
+# Dimension: 5
+# Expected value: 3.668430
+# Input vector:
+-0.479416
+0.469910
+0.332443
+-0.287661
+-0.318175

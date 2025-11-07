@@ -1,0 +1,9 @@
+# Test Case 4: Random [0, 2]
+# Dimension: 5
+# Expected value: 620.972985
+# Input vector:
+0.311989
+0.116167
+1.732352
+1.202230
+1.416145

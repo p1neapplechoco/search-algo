@@ -1,0 +1,9 @@
+# Test Case 7: Alternating 0,1
+# Dimension: 5
+# Expected value: 402.000000
+# Input vector:
+0.000000
+1.000000
+0.000000
+1.000000
+0.000000

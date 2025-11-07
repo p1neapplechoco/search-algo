@@ -1,0 +1,9 @@
+# Test Case 6: All 2s
+# Dimension: 5
+# Expected value: 1604.000000
+# Input vector:
+2.000000
+2.000000
+2.000000
+2.000000
+2.000000

@@ -1,0 +1,9 @@
+# Test Case 7: Alternating ±5
+# Dimension: 5
+# Expected value: 12.642411
+# Input vector:
+-5.000000
+5.000000
+-5.000000
+5.000000
+-5.000000

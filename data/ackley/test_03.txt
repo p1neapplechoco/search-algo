@@ -1,0 +1,9 @@
+# Test Case 3: Random [-32, 32]
+# Dimension: 5
+# Expected value: 20.459101
+# Input vector:
+-8.029432
+28.845716
+14.847612
+6.314143
+-22.014807

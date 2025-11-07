@@ -1,0 +1,9 @@
+# Test Case 1: Optimal (all zeros)
+# Dimension: 5
+# Expected value: 0.000000
+# Input vector:
+0.000000
+0.000000
+0.000000
+0.000000
+0.000000
