@@ -1,4 +1,4 @@
-from swarm_algo.firefly import Firefly
+from swarm_algo.abc import ABC
 from typing import List, Tuple
 import numpy as np
 from tqdm import tqdm
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 KNAPSACK_DATA_FOLDER = "data/knapsack/"
 MAX_POPULATION = 100
-NUM_OF_GENERATIONS = 100
+NUM_OF_GENERATIONS = 500
 
 
 def get_problem_infos(PROBLEM: int) -> Tuple[int, List[int], List[int], List[int]]:
@@ -50,15 +50,18 @@ def objective_function(ans, items):
     return total_profit
 
 
-def knapsack_firefly(PROBLEM: int):
+def knapsack_abc(PROBLEM: int):
     capacity, items, weights, solution = get_problem_infos(PROBLEM)
     num_items = len(items)
 
     def fitness_function(ans):
+        # Convert continuous values to binary
+        binary_ans = (ans > 0.5).astype(int)
+        
         total_weight = 0
         total_profit = 0
         for i in range(num_items):
-            if ans[i]:
+            if binary_ans[i]:
                 total_weight += weights[i]
                 total_profit += items[i]
 
@@ -70,27 +73,32 @@ def knapsack_firefly(PROBLEM: int):
 
         return total_profit
 
-    firefly = Firefly(
-        ndim=num_items,
-        num_fireflies=MAX_POPULATION,
-        beta=1.0,
-        gamma=0.02,  # Lower gamma for slower intensity decay
-        alpha=0.7,  # Higher alpha for more exploration
+    abc = ABC(
+        dimension=num_items,
+        sn=MAX_POPULATION,
+        mcn=NUM_OF_GENERATIONS,
+        limit=200,
+        lb=0.0,
+        ub=1.0,
+        objective_function=fitness_function,
     )
 
-    firefly.set_objective_function(fitness_function)
+    # abc.set_objective_function(fitness_function)
 
-    best_fitness_over_time = []
-    answer, profit = firefly.run(NUM_OF_GENERATIONS)
+    answer, fitness = abc.run()
+    
+    # Convert to binary solution
+    binary_answer = (answer > 0.5).astype(int)
+    profit = objective_function(binary_answer, items)
 
     optimal_profit = objective_function(solution, items)
 
     print(f"Problem {PROBLEM}: {num_items} items, capacity {capacity}")
-    print(f"Firefly solution profit: {profit}")
+    print(f"ABC solution profit: {profit}")
     print(f"Optimal solution profit: {optimal_profit}")
-    print(f"Accuracy: {relativity_to_solution(answer, solution, items) * 100:.2f}%")
-    print(f"Items selected: {np.sum(answer)}/{num_items}")
+    print(f"Accuracy: {relativity_to_solution(binary_answer, solution, items) * 100:.2f}%")
+    print(f"Items selected: {np.sum(binary_answer)}/{num_items}")
 
 
 if __name__ == "__main__":
-    knapsack_firefly(PROBLEM=18)
+    knapsack_abc(PROBLEM=18)
