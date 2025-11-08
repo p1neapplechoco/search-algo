@@ -1,0 +1,10 @@
+# Test Case 3: Wide random [-32, 32]
+# Dimension: 5
+# Initial value: f(x) = 21.785701
+# Optimal: f([0,0,...,0]) = 0.0
+# Input vector:
+-30.682592
+30.074231
+21.276329
+-18.410297
+-20.363202

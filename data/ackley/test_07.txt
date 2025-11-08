@@ -1,0 +1,10 @@
+# Test Case 7: All 15s
+# Dimension: 5
+# Initial value: f(x) = 19.004259
+# Optimal: f([0,0,...,0]) = 0.0
+# Input vector:
+15.000000
+15.000000
+15.000000
+15.000000
+15.000000

@@ -1,0 +1,10 @@
+# Test Case 5: Alternating ±25
+# Dimension: 5
+# Initial value: f(x) = 19.865241
+# Optimal: f([0,0,...,0]) = 0.0
+# Input vector:
+-25.000000
+25.000000
+-25.000000
+25.000000
+-25.000000

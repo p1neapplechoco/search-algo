@@ -1,0 +1,10 @@
+# Test Case 5: Alternating -10/+10
+# Dimension: 5
+# Initial value: f(x) = 4040404.000000
+# Optimal: f([1,1,...,1]) = 0.0
+# Input vector:
+-10.000000
+10.000000
+-10.000000
+10.000000
+-10.000000
