@@ -1,4 +1,4 @@
-from src.swarm_algo.firefly import Firefly
+from swarm_algo.firefly import Firefly
 from typing import List, Tuple
 import numpy as np
 from tqdm import tqdm

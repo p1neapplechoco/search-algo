@@ -134,7 +134,3 @@ class TSPProblem(Problem):
     def is_valid(self, solution):
         return (len(solution) == self.n_cities and
                 set(solution) == set(range(self.n_cities)))
-
-
-
-

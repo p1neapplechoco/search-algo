@@ -12,17 +12,17 @@ LIMIT = 100
 def ackley_function(x, a=20, b=0.2, c=2 * np.pi):
     """
     Ackley function - a widely used benchmark for optimization algorithms
-    
+
     f(x) = -a * exp(-b * sqrt(1/n * sum(x_i^2))) - exp(1/n * sum(cos(c * x_i))) + a + exp(1)
-    
+
     Global minimum at f(0,0,...,0) = 0
-    
+
     Args:
         x: Input vector
         a: First constant (default: 20)
         b: Second constant (default: 0.2)
         c: Third constant (default: 2π)
-    
+
     Returns:
         Function value
     """
@@ -110,7 +110,9 @@ def ackley_abc(test_number: int, visualize: bool = False):
     print(f"Best solution found: {best_solution}")
     print(f"Best value: {best_value:.6f}")
     print(f"Initial value: {initial_value:.6f}")
-    print(f"Improvement: {initial_value - best_value:.6f} ({((initial_value - best_value)/initial_value*100) if initial_value != 0 else 0:.2f}%)")
+    print(
+        f"Improvement: {initial_value - best_value:.6f} ({((initial_value - best_value)/initial_value*100) if initial_value != 0 else 0:.2f}%)"
+    )
     print(f"Distance from optimal (0,0,...,0): {np.linalg.norm(best_solution):.6f}")
     print(f"Error from optimal: {abs(best_value - 0.0):.6f}")
 

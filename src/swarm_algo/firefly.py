@@ -1,6 +1,8 @@
 import numpy as np
 from numpy import random
 import matplotlib.pyplot as plt
+from problem.problem import Problem
+from typing import Optional
 
 
 class Firefly:

@@ -9,7 +9,7 @@ import numpy as np
 # [x1,x2],[y1,y2]
 
 
-class ACO:
+class AntColonyOptimizer:
     def __init__(self, colony, num_ant, iter, alpha, beta, rho, Q):
         self.colony = colony
         self.num_ant = num_ant
