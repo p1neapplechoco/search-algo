@@ -6,7 +6,7 @@ from collections import deque
 from typing import Any, Callable, List, Set, Tuple, Optional
 
 
-class BFS:
+class BreadthFirstSearch:
     """
     Breadth-First Search (BFS) algorithm for finding optimal solutions in discrete state spaces.
     """
