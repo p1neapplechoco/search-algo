@@ -111,7 +111,7 @@ class ParticleSwarmOptimizer:
         ring_neighbors: int = 2,
         # velocity/boundary
         velocity_clamp: None | float | Tuple[float, float] | np.ndarray = 0.2,
-        boundary_mode: BoundaryMode = "reflect",
+        boundary_mode: BoundaryMode = "clip",
         # misc
         seed: Optional[int] = None,
         early_stopping_rounds: Optional[int] = None,
@@ -164,6 +164,11 @@ class ParticleSwarmOptimizer:
         self._pbest_val: Optional[np.ndarray] = None
         self._gbest_pos: Optional[np.ndarray] = None
         self._gbest_val: Optional[float] = None
+        
+        # Avoid velocity explosion
+        if self.mode == "inertia" and (self.c1 + self.c2) > 4.0:
+            raise ValueError("For inertia PSO, require c1 + c2 <= 4 for stability.")
+
 
     # ---------------------- Public API ----------------------
     def optimize(self) -> Tuple[np.ndarray, float, PSOInfo]:
@@ -214,13 +219,17 @@ class ParticleSwarmOptimizer:
 
             if self.early_stopping_rounds is not None and no_improve >= self.early_stopping_rounds:
                 break
-
+            
+        # check convergence for early stopping mode
+        converged_flag = (
+            self.early_stopping_rounds is not None and no_improve < self.early_stopping_rounds
+        )
+        
         info = PSOInfo(
             history_best_f=history_best_f,
             best_position=self._gbest_pos.copy(),
             n_iter=len(history_best_f),
-            converged=(self.early_stopping_rounds is not None and no_improve < self.early_stopping_rounds)
-                      or (self.early_stopping_rounds is None),
+            converged=converged_flag,
             bests_over_time=np.vstack(bests_over_time) if (self.enable_position_history and bests_over_time) else None,
         )
         
@@ -261,6 +270,7 @@ class ParticleSwarmOptimizer:
         lbest = np.empty_like(self._pbest_pos)
         for i in range(self.n):
             neigh_idx = [(i + s) % self.n for s in range(-self.k, self.k + 1)]
+            # note: lbest được chọn từ pbest của láng giềng (ổn định hơn vị trí tức thời)
             best_j = neigh_idx[int(np.argmin(self._pbest_val[neigh_idx]))]
             lbest[i] = self._pbest_pos[best_j]
         return lbest
