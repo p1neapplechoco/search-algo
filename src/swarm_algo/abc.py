@@ -3,7 +3,7 @@ from numpy import random
 import matplotlib.pyplot as plt
 
 
-class ABC:
+class ArtificialBeeColony:
     def __init__(
         self,
         dimension,

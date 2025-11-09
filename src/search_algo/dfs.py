@@ -4,7 +4,7 @@ from math import gamma
 from typing import Any, Callable, Optional
 
 
-class DFS:
+class DepthFirstSearch:
     def __init__(
         self,
         start_node: Any,

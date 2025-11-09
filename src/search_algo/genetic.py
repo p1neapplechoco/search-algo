@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class Genetic:
+class GeneticAlgorithm:
     def __init__(
         self,
         population_size,
