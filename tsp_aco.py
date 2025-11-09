@@ -1,4 +1,4 @@
-from src.swarm_algo.aco import ACO
+from src.swarm_algo.aco import AntColonyOptimizer as ACO
 from typing import List, Tuple
 import numpy as np
 from tqdm import tqdm

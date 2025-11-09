@@ -7,6 +7,7 @@ class Knapsack(Problem):
     """
     A binary Knapsack Problem implementation.
     """
+
     def __init__(self, PROBLEM_FOLDER: str, PROBLEM: int):
         super().__init__()
         self.capacity, self.items, self.weights, self.solution = self.load_problem_infos(
@@ -34,7 +35,8 @@ class Knapsack(Problem):
             solution: List[int]
         """
         if "PROBLEM_FOLDER" not in kwargs or "PROBLEM" not in kwargs:
-            raise ValueError("PROBLEM_FOLDER and PROBLEM must be provided in kwargs")
+            raise ValueError(
+                "PROBLEM_FOLDER and PROBLEM must be provided in kwargs")
 
         PROBLEM_FOLDER = kwargs.get("PROBLEM_FOLDER")
         PROBLEM = kwargs.get("PROBLEM")
@@ -91,5 +93,3 @@ class Knapsack(Problem):
 
     def get_actions(self) -> List[int]:
         return [0, 1]  # 0: not include item, 1: include item
-
-    def 

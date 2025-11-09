@@ -158,7 +158,7 @@ class TSPProblem(AStarProblem):
         return len(visited) == self.n and current_city == self.start_city
 
     def get_neighbor(self, state: Tuple[int, frozenset]) -> List[Tuple[Any, float]]:
-        """Sinh các thành phố kế tiếp có thể đi"""
+        """Lấy các thành phố kế tiếp có thể đi"""
         current_city, visited = state
         successors = []
 
