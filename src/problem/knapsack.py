@@ -7,10 +7,11 @@ class Knapsack(Problem):
     """
     A binary Knapsack Problem implementation.
     """
+
     def __init__(self, PROBLEM_FOLDER: str, PROBLEM: int):
         super().__init__()
-        self.capacity, self.items, self.weights, self.solution = self.load_problem_infos(
-            PROBLEM_FOLDER=PROBLEM_FOLDER, PROBLEM=PROBLEM
+        self.capacity, self.items, self.weights, self.solution = (
+            self.load_problem_infos(PROBLEM_FOLDER=PROBLEM_FOLDER, PROBLEM=PROBLEM)
         )
 
     def load_problem_infos(
@@ -61,9 +62,13 @@ class Knapsack(Problem):
             solution = [int(s.strip()) for s in f.readlines() if s.strip()]
 
         return capacity, items, weights, solution
-        return capacity, items, weights, solution
 
-    def relativity_to_solution(self, answer):
+    def relativity_to_solution(self, **kwargs) -> float:
+        answer = kwargs.get("answer", None)
+
+        if answer is None:
+            raise ValueError("answer must be provided in kwargs")
+
         ans_profit = 0
         sol_profit = 0
 
@@ -75,7 +80,7 @@ class Knapsack(Problem):
 
         return ans_profit / sol_profit
 
-    def calculate_fitness(self, answer):
+    def calculate_fitness(self, answer) -> float:
         total_weight = 0
         total_profit = 0
         for i in range(len(self.items)):
@@ -84,12 +89,23 @@ class Knapsack(Problem):
                 total_profit += self.items[i]
 
         if total_weight > self.capacity:
-            penalty = (total_weight - self.capacity) * max(self.items)
-            return max(0, total_profit - penalty)
+            return 0.0
 
         return total_profit
 
     def get_actions(self) -> List[int]:
         return [0, 1]  # 0: not include item, 1: include item
 
-    def 
+    def get_neighbors(self, current_node: List[int]) -> List[List[int]]:
+        neighbors = []
+        current_weight = sum(
+            self.weights[i] for i in range(len(current_node)) if current_node[i]
+        )
+
+        for i in range(len(current_node)):
+            if current_node[i] == 0:
+                if current_weight + self.weights[i] <= self.capacity:
+                    new_state = list(current_node)
+                    new_state[i] = 1
+                    neighbors.append(tuple(new_state))
+        return neighbors

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 TSP_DATA_FOLDER = "data/tsp/"
 NUM_FIREFLIES = 100
-NUM_GENERATIONS = 100
+NUM_GENERATIONS = 1000
 BETA = 1.0  # attractiveness coefficient
 GAMMA = 0.01  # light absorption coefficient
 ALPHA = 0.5  # randomization parameter
