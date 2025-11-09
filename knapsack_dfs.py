@@ -1,7 +1,6 @@
-from src.search_algo.bfs import BFS
+from search_algo.dfs import DFS
 from typing import List, Tuple
 import numpy as np
-from tqdm import tqdm
 import time
 import matplotlib.pyplot as plt
 
@@ -84,20 +83,20 @@ def relativity_to_solution(
     return ans_profit / sol_profit
 
 
-def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 1000000):
+def knapsack_dfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 1000000):
     """
-    Solve knapsack problem using BFS algorithm.
+    Solve knapsack problem using DFS algorithm.
 
     Args:
         PROBLEM: Problem number (1-18)
         visualize: Whether to show visualization
-        max_iterations: Maximum iterations for BFS
+        max_iterations: Maximum iterations for DFS
     """
     capacity, profits, weights, solution = get_problem_infos(PROBLEM)
     num_items = len(profits)
 
     print(f"\n{'='*70}")
-    print(f"Knapsack Problem {PROBLEM} - BFS Algorithm")
+    print(f"Knapsack Problem {PROBLEM} - DFS Algorithm")
     print(f"{'='*70}")
     print(f"Items: {num_items}, Capacity: {capacity}")
     print(f"Theoretical worst case: 2^{num_items} = {2**num_items:,} states")
@@ -133,34 +132,33 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
 
         return neighbors
 
-    # Define fitness function (negative profit to minimize)
+    # Define fitness function (positive profit for maximization)
     def fitness_function(state):
-        """Calculate negative profit (we want to maximize profit, so minimize negative profit)."""
+        """Calculate profit (DFS maximizes, so use positive profit)."""
         total_profit = sum(profits[i] for i in range(len(state)) if state[i])
-        return -total_profit
+        return total_profit
 
-    # Define state_to_tuple function (already a tuple, but ensure consistency)
-    def state_to_tuple(state):
-        return tuple(state)
-
-    # Solve using BFS
-    print(f"\nRunning BFS...")
+    # Solve using DFS
+    print(f"\nRunning DFS...")
     start_time = time.time()
 
-    bfs = BFS(start_state, get_neighbors, max_iterations)
-    bfs.set_fitness_function(fitness_function)
+    dfs = DFS(start_state, get_neighbors)
+    dfs.set_fitness_function(fitness_function)
 
-    # Use search_best with depth limit (num_items is the max depth)
-    best_state, best_fitness = bfs.search_best(
-        max_depth=num_items, state_to_tuple=state_to_tuple
-    )
+    # Run DFS
+    best_state, best_fitness = dfs.run(max_iterations=max_iterations)
 
     elapsed_time = time.time() - start_time
 
     # Extract results
-    best_selection = best_state
-    best_profit = -best_fitness  # Convert back to positive
-    nodes_explored = bfs.visited_count
+    if best_state is None:
+        best_selection = start_state
+        best_profit = 0
+    else:
+        best_selection = best_state
+        best_profit = best_fitness  # Already positive
+
+    nodes_explored = len(dfs.visited)
 
     # Calculate result metrics
     best_weight = sum(weights[i] for i in range(num_items) if best_selection[i])
@@ -170,7 +168,7 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     print(f"\n{'='*70}")
     print(f"Results:")
     print(f"{'='*70}")
-    print(f"BFS solution profit: {best_profit}")
+    print(f"DFS solution profit: {best_profit}")
     print(f"Optimal profit: {optimal_profit}")
     print(f"Accuracy: {accuracy * 100:.2f}%")
     print(f"Weight used: {best_weight}/{capacity} ({best_weight/capacity*100:.1f}%)")
@@ -186,15 +184,6 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     else:
         print(f"△ Solution could be improved")
 
-    # Visualize BFS search tree (for small problems only)
-    if visualize and num_items <= 10:
-        print(f"\n📊 Visualizing BFS search tree...")
-        print(f"   (Showing up to 100 nodes from the search space)")
-        try:
-            bfs.visualize_search_tree(max_nodes=100)
-        except Exception as e:
-            print(f"   Warning: Could not visualize search tree: {e}")
-
     # Show selected items
     if num_items <= 20:  # Only show for small problems
         print(f"\nSelected items:")
@@ -208,15 +197,15 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
 
         # Plot 1: Comparison bar chart
         ax1 = axes[0]
-        categories = ["BFS Solution", "Optimal Solution"]
+        categories = ["DFS Solution", "Optimal Solution"]
         values = [best_profit, optimal_profit]
-        colors = ["#45B7D1" if best_profit == optimal_profit else "#FFA07A", "#2ECC71"]
+        colors = ["#FF6B6B" if best_profit == optimal_profit else "#FFA07A", "#2ECC71"]
         bars = ax1.bar(
             categories, values, color=colors, alpha=0.7, edgecolor="black", linewidth=2
         )
         ax1.set_ylabel("Total Profit", fontsize=12)
         ax1.set_title(
-            f"Knapsack Problem {PROBLEM} - Profit Comparison",
+            f"Knapsack Problem {PROBLEM} - Profit Comparison (DFS)",
             fontsize=14,
             fontweight="bold",
         )
@@ -237,7 +226,7 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         # Plot 2: Metrics comparison
         ax2 = axes[1]
         metrics = ["Accuracy\n(%)", "Weight\nUsage (%)", "Items\nSelected (%)"]
-        bfs_metrics = [
+        dfs_metrics = [
             accuracy * 100,
             (best_weight / capacity) * 100,
             (items_selected / num_items) * 100,
@@ -253,10 +242,10 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
 
         bars1 = ax2.bar(
             x - width / 2,
-            bfs_metrics,
+            dfs_metrics,
             width,
-            label="BFS Solution",
-            color="#45B7D1",
+            label="DFS Solution",
+            color="#FF6B6B",
             alpha=0.7,
             edgecolor="black",
         )
@@ -294,7 +283,7 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         plt.tight_layout()
 
         # Save to file
-        output_filename = f"knapsack_bfs_p{PROBLEM:02d}.png"
+        output_filename = f"knapsack_dfs_p{PROBLEM:02d}.png"
         plt.savefig(output_filename, dpi=150, bbox_inches="tight")
         print(f"\n📊 Visualization saved to: {output_filename}")
 
@@ -303,12 +292,12 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
 
 def run_small_problems():
     """
-    Run BFS on small knapsack problems (recommended: problems with <= 20 items).
+    Run DFS on small knapsack problems (recommended: problems with <= 20 items).
     """
     print("\n" + "=" * 70)
-    print("KNAPSACK BFS - RUNNING SMALL PROBLEMS")
+    print("KNAPSACK DFS - RUNNING SMALL PROBLEMS")
     print("=" * 70)
-    print("\nNote: BFS has exponential complexity. Only small problems are feasible.")
+    print("\nNote: DFS has exponential complexity. Only small problems are feasible.")
     print("Recommended: Problems 1-7 (10-23 items)")
 
     # Test on problems with fewer items
@@ -325,7 +314,7 @@ def run_small_problems():
                 print(f"\nSkipping Problem {prob} (too large: {num_items} items)")
                 continue
 
-            knapsack_bfs(prob, visualize=False, max_iterations=1000000)
+            knapsack_dfs(prob, visualize=False, max_iterations=1000000)
             results.append(prob)
 
         except Exception as e:
@@ -336,29 +325,22 @@ def run_small_problems():
     print("=" * 70)
 
 
-def demo_bfs_visualization():
+def compare_bfs_dfs(PROBLEM: int, visualize: bool = True):
     """
-    Demo BFS visualization with a small custom problem.
-    Creates a tiny knapsack problem to clearly show the BFS search tree.
+    Compare BFS and DFS on the same problem with detailed metrics.
     """
-    print("\n" + "=" * 70)
-    print("BFS SEARCH TREE VISUALIZATION DEMO")
-    print("=" * 70)
-    print("\nCreating a tiny knapsack problem to visualize BFS search tree...")
-
-    # Small problem: 5 items
-    capacity = 15
-    profits = [10, 6, 12, 8, 5]
-    weights = [5, 3, 7, 4, 2]
+    capacity, profits, weights, solution = get_problem_infos(PROBLEM)
     num_items = len(profits)
 
-    print(f"\nProblem setup:")
-    print(f"  Capacity: {capacity}")
-    print(f"  Items: {num_items}")
-    for i in range(num_items):
-        print(f"    Item {i+1}: profit={profits[i]}, weight={weights[i]}")
+    print("\n" + "=" * 70)
+    print(f"COMPARING BFS vs DFS - Problem {PROBLEM}")
+    print("=" * 70)
 
-    # Define BFS components
+    # Calculate optimal
+    optimal_profit = sum(profits[i] for i in range(num_items) if solution[i])
+
+    # Run BFS
+    print("\n" + "🔵 RUNNING BFS...")
     start_state = tuple([0] * num_items)
 
     def get_neighbors(state):
@@ -372,56 +354,155 @@ def demo_bfs_visualization():
                     neighbors.append(tuple(new_state))
         return neighbors
 
-    def fitness_function(state):
-        total_profit = sum(profits[i] for i in range(len(state)) if state[i])
-        return -total_profit
+    from src.search_algo.bfs import BFS
 
-    def state_to_tuple(state):
-        return tuple(state)
+    start_time_bfs = time.time()
+    bfs = BFS(start_state, get_neighbors, max_iterations=1000000)
+    bfs.set_fitness_function(lambda s: -sum(profits[i] for i in range(len(s)) if s[i]))
+    best_state_bfs, best_fitness_bfs = bfs.search_best(
+        max_depth=num_items, state_to_tuple=lambda s: tuple(s)
+    )
+    time_bfs = time.time() - start_time_bfs
 
-    # Create BFS instance
-    print(f"\nRunning BFS...")
-    bfs = BFS(start_state, get_neighbors, max_iterations=10000)
-    bfs.set_fitness_function(fitness_function)
+    profit_bfs = -best_fitness_bfs
+    nodes_bfs = bfs.visited_count
 
-    # Find best solution
-    best_state, best_fitness = bfs.search_best(
-        max_depth=num_items, state_to_tuple=state_to_tuple
+    print(f"  Profit: {profit_bfs}, Nodes: {nodes_bfs:,}, Time: {time_bfs:.2f}s")
+
+    # Run DFS
+    print("\n🔴 RUNNING DFS...")
+    start_time_dfs = time.time()
+    dfs = DFS(start_state, get_neighbors)
+    dfs.set_fitness_function(lambda s: sum(profits[i] for i in range(len(s)) if s[i]))
+    best_state_dfs, best_fitness_dfs = dfs.run(max_iterations=1000000)
+    time_dfs = time.time() - start_time_dfs
+
+    profit_dfs = best_fitness_dfs if best_state_dfs else 0
+    nodes_dfs = len(dfs.visited)
+
+    print(f"  Profit: {profit_dfs}, Nodes: {nodes_dfs:,}, Time: {time_dfs:.2f}s")
+
+    # Print comparison
+    print("\n" + "=" * 70)
+    print("COMPARISON SUMMARY")
+    print("=" * 70)
+
+    print(f"\n{'Metric':<20} {'BFS':<20} {'DFS':<20} {'Winner'}")
+    print("-" * 70)
+    print(
+        f"{'Profit':<20} {profit_bfs:<20} {profit_dfs:<20} {'🔵 BFS' if profit_bfs > profit_dfs else '🔴 DFS' if profit_dfs > profit_bfs else '🟰 Tie'}"
+    )
+    print(
+        f"{'Nodes Explored':<20} {nodes_bfs:<20,} {nodes_dfs:<20,} {'🔵 BFS' if nodes_bfs < nodes_dfs else '🔴 DFS' if nodes_dfs < nodes_bfs else '🟰 Tie'}"
+    )
+    print(
+        f"{'Time (seconds)':<20} {time_bfs:<20.2f} {time_dfs:<20.2f} {'🔵 BFS' if time_bfs < time_dfs else '🔴 DFS' if time_dfs < time_bfs else '🟰 Tie'}"
+    )
+    print(
+        f"{'Accuracy':<20} {(profit_bfs/optimal_profit*100):<20.2f}% {(profit_dfs/optimal_profit*100):<20.2f}% {'🔵 BFS' if profit_bfs > profit_dfs else '🔴 DFS' if profit_dfs > profit_bfs else '🟰 Tie'}"
     )
 
-    best_profit = -best_fitness
-    best_weight = sum(weights[i] for i in range(num_items) if best_state[i])
+    print("\n" + "=" * 70)
+    print("KEY DIFFERENCES")
+    print("=" * 70)
+    print("  • BFS: Explores level-by-level (breadth-first)")
+    print("  • DFS: Explores depth-first (goes deep before backtracking)")
+    print("  • BFS: More memory-intensive (queue grows exponentially)")
+    print("  • DFS: Less memory-intensive (stack depth = tree depth)")
+    print("  • Both: Same worst-case time complexity O(2^n)")
 
-    print(f"\nBest solution found:")
-    print(f"  Total profit: {best_profit}")
-    print(f"  Total weight: {best_weight}/{capacity}")
-    print(f"  Selected items: {[i+1 for i in range(num_items) if best_state[i]]}")
-    print(f"  Nodes explored: {bfs.visited_count:,}")
+    # Visualization
+    if visualize:
+        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-    # Visualize search tree
-    print(f"\n📊 Generating BFS search tree visualization...")
-    print(f"   (Showing up to 50 nodes)")
-    print(f"   Note: Each node represents a state (which items are selected)")
-    print(f"   The tree shows how BFS explores different combinations")
+        # Plot 1: Profit comparison
+        ax1 = axes[0]
+        algorithms = ["BFS", "DFS", "Optimal"]
+        profits = [profit_bfs, profit_dfs, optimal_profit]
+        colors = ["#45B7D1", "#FF6B6B", "#2ECC71"]
+        bars = ax1.bar(
+            algorithms, profits, color=colors, alpha=0.7, edgecolor="black", linewidth=2
+        )
+        ax1.set_ylabel("Total Profit", fontsize=12)
+        ax1.set_title("Profit Comparison", fontsize=14, fontweight="bold")
+        ax1.grid(True, alpha=0.3, axis="y")
 
-    try:
-        bfs.visualize_search_tree(max_nodes=50)
-        print(f"\n✓ Search tree visualization displayed!")
-    except ImportError:
-        print(f"\n⚠ NetworkX not installed. Cannot visualize search tree.")
-        print(f"   Install with: pip install networkx")
-    except Exception as e:
-        print(f"\n⚠ Could not visualize: {e}")
+        for bar, val in zip(bars, profits):
+            height = bar.get_height()
+            ax1.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f"{val}",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+                fontweight="bold",
+            )
+
+        # Plot 2: Nodes explored
+        ax2 = axes[1]
+        algorithms = ["BFS", "DFS"]
+        nodes = [nodes_bfs, nodes_dfs]
+        colors = ["#45B7D1", "#FF6B6B"]
+        bars = ax2.bar(
+            algorithms, nodes, color=colors, alpha=0.7, edgecolor="black", linewidth=2
+        )
+        ax2.set_ylabel("Nodes Explored", fontsize=12)
+        ax2.set_title("Search Efficiency", fontsize=14, fontweight="bold")
+        ax2.grid(True, alpha=0.3, axis="y")
+
+        for bar, val in zip(bars, nodes):
+            height = bar.get_height()
+            ax2.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f"{val:,}",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+                fontweight="bold",
+            )
+
+        # Plot 3: Time comparison
+        ax3 = axes[2]
+        times = [time_bfs, time_dfs]
+        bars = ax3.bar(
+            algorithms, times, color=colors, alpha=0.7, edgecolor="black", linewidth=2
+        )
+        ax3.set_ylabel("Time (seconds)", fontsize=12)
+        ax3.set_title("Runtime Comparison", fontsize=14, fontweight="bold")
+        ax3.grid(True, alpha=0.3, axis="y")
+
+        for bar, val in zip(bars, times):
+            height = bar.get_height()
+            ax3.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f"{val:.2f}s",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+                fontweight="bold",
+            )
+
+        plt.tight_layout()
+
+        # Save
+        output_filename = f"bfs_vs_dfs_p{PROBLEM:02d}.png"
+        plt.savefig(output_filename, dpi=150, bbox_inches="tight")
+        print(f"\n📊 Comparison visualization saved to: {output_filename}")
+
+        plt.show()
 
 
 if __name__ == "__main__":
     # Option 1: Run single problem with visualization
-    # Note: BFS can handle problems with ~20 items reasonably well
+    # Note: DFS can handle problems with ~20 items reasonably well
     # Larger problems may take significant time due to exponential complexity
-    # knapsack_bfs(PROBLEM=1, visualize=True)
+    knapsack_dfs(PROBLEM=1, visualize=True)
 
     # Option 2: Run multiple small problems
     # run_small_problems()
 
-    # Option 3: Demo BFS search tree visualization
-    demo_bfs_visualization()
+    # Option 3: Compare BFS vs DFS
+    # compare_bfs_dfs(PROBLEM=11, visualize=True)

@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib.colors import Normalize
 from collections import deque
 from typing import Any, Callable, List, Set, Tuple, Optional
 
@@ -254,18 +256,45 @@ class BFS:
                     continue
 
             # Draw graph
-            pos = nx.spring_layout(G)
-            plt.figure(figsize=(12, 8))
+            pos = nx.spring_layout(G, seed=42)
+            plt.figure(figsize=(14, 10))
+
+            # Color nodes by depth
+            depths = [G.nodes[node].get("depth", 0) for node in G.nodes()]
+
             nx.draw(
                 G,
                 pos,
                 with_labels=True,
-                node_color="lightblue",
-                node_size=500,
-                font_size=8,
+                node_color=depths,
+                cmap="viridis",
+                node_size=800,
+                font_size=7,
+                font_weight="bold",
+                edge_color="gray",
+                arrowsize=15,
             )
-            plt.title(f"BFS Search Tree (showing {node_count} nodes)")
+            plt.title(
+                f"BFS Search Tree (showing {node_count} nodes)",
+                fontsize=16,
+                fontweight="bold",
+            )
+
+            # Add colorbar to show depth
+            sm = cm.ScalarMappable(
+                cmap="viridis", norm=Normalize(vmin=min(depths), vmax=max(depths))
+            )
+            sm.set_array([])
+            cbar = plt.colorbar(sm, ax=plt.gca())
+            cbar.set_label("Depth Level", rotation=270, labelpad=20)
+
             plt.tight_layout()
+
+            # Save to file
+            output_file = "bfs_search_tree.png"
+            plt.savefig(output_file, dpi=150, bbox_inches="tight")
+            print(f"   Search tree saved to: {output_file}")
+
             plt.show()
 
         except ImportError:
