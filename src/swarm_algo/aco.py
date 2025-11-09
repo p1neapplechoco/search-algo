@@ -21,12 +21,14 @@ class ACO:
         self.Q = Q
         self.theta_matrix = np.ones((len(self.colony), len(self.colony)))
         self.n_colonies = len(self.colony)
+        self.fitness_func = None
 
     def cal_distance(self):
         colony3d = self.colony[:, np.newaxis, :]
         colony3d_transform = self.colony[np.newaxis, :, :]
 
-        distance_matrix = np.sqrt(np.sum((colony3d - colony3d_transform) ** 2, axis=2))
+        distance_matrix = np.sqrt(
+            np.sum((colony3d - colony3d_transform) ** 2, axis=2))
         zeta = np.where(distance_matrix > 0, 1.0 / distance_matrix, 0)
         return zeta, distance_matrix
 
@@ -36,7 +38,12 @@ class ACO:
         to_cities = np.array(path[1:] + [path[0]])
         return (from_cities, to_cities)
 
+    def set_fitness_func(self, fitness_func):
+        self.fitness_func = fitness_func
+
     def fitness(self, ant_path):
+        if self.fitness_func:
+            return self.fitness_func(ant_path)
         return np.sum(self.distance_matrix[ant_path[0], ant_path[1]])
 
     def update_pheromone(self, ant_paths):
@@ -57,7 +64,8 @@ class ACO:
         probs = theta**self.alpha * eta**self.beta
         prob_sum = np.sum(probs)
         if prob_sum == 0:
-            unvisited = [i for i in range(self.n_colonies) if i not in visitted]
+            unvisited = [i for i in range(
+                self.n_colonies) if i not in visitted]
             if unvisited:
                 return np.random.choice(unvisited)
             return None

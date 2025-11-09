@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 TSP_DATA_FOLDER = "data/tsp/"
 NUM_ANTS = 50
-NUM_ITERATIONS = 1000
+NUM_ITERATIONS = 10
 ALPHA = 1.0  # pheromone importance
 BETA = 5.0  # distance importance
 RHO = 0.5  # evaporation rate
@@ -35,7 +35,8 @@ def get_problem_infos(PROBLEM: int) -> Tuple[np.ndarray, List[int]]:
 
     # Read solution path
     with open(TSP_DATA_FOLDER + problem + "_s.txt") as f:
-        solution = [int(s.strip()) - 1 for s in f.readlines()]  # Convert to 0-indexed
+        # Convert to 0-indexed
+        solution = [int(s.strip()) - 1 for s in f.readlines()]
 
     return distance_matrix, solution
 
@@ -79,59 +80,60 @@ def tsp_aco(PROBLEM: int, visualize: bool = False):
     aco.distance_matrix = distance_matrix
     aco.zeta = np.where(distance_matrix > 0, 1.0 / distance_matrix, 0)
 
-    # Track progress for visualization
-    best_fitness_progress = []
-    avg_fitness_progress = []
+    # # Track progress for visualization
+    # best_fitness_progress = []
+    # avg_fitness_progress = []
 
-    print(f"\nSolving TSP Problem {PROBLEM} with {num_cities} cities...")
-    print(
-        f"Parameters: ants={NUM_ANTS}, iterations={NUM_ITERATIONS}, α={ALPHA}, β={BETA}, ρ={RHO}, Q={Q}"
-    )
+    # print(f"\nSolving TSP Problem {PROBLEM} with {num_cities} cities...")
+    # print(
+    #     f"Parameters: ants={NUM_ANTS}, iterations={NUM_ITERATIONS}, α={ALPHA}, β={BETA}, ρ={RHO}, Q={Q}"
+    # )
 
-    # Run ACO with progress tracking
-    best_path = None
-    best_fitness = float("inf")
+    # # Run ACO with progress tracking
+    # best_path = None
+    # best_fitness = float("inf")
 
-    for iteration in tqdm(range(NUM_ITERATIONS), desc="ACO Progress"):
-        all_paths = []
-        all_ant_paths = []
-        all_fitness = []
+    # for iteration in tqdm(range(NUM_ITERATIONS), desc="ACO Progress"):
+    #     all_paths = []
+    #     all_ant_paths = []
+    #     all_fitness = []
 
-        for ant in range(NUM_ANTS):
-            cur_idx = np.random.randint(0, num_cities)
-            visitted = {cur_idx}
-            path = [cur_idx]
+    #     for ant in range(NUM_ANTS):
+    #         cur_idx = np.random.randint(0, num_cities)
+    #         visitted = {cur_idx}
+    #         path = [cur_idx]
 
-            while len(visitted) < num_cities:
-                cur_idx = aco.RWS(cur_idx, visitted)
-                if cur_idx is None:
-                    break
-                path.append(cur_idx)
-                visitted.add(cur_idx)
+    #         while len(visitted) < num_cities:
+    #             cur_idx = aco.RWS(cur_idx, visitted)
+    #             if cur_idx is None:
+    #                 break
+    #             path.append(cur_idx)
+    #             visitted.add(cur_idx)
 
-            if len(path) == num_cities:
-                ant_path = aco.path_to_ant_path(path)
-                fit = aco.fitness(ant_path)
+    #         if len(path) == num_cities:
+    #             ant_path = aco.path_to_ant_path(path)
+    #             fit = aco.fitness(ant_path)
 
-                all_paths.append(path)
-                all_ant_paths.append(ant_path)
-                all_fitness.append(fit)
+    #             all_paths.append(path)
+    #             all_ant_paths.append(ant_path)
+    #             all_fitness.append(fit)
 
-                if fit < best_fitness:
-                    best_fitness = fit
-                    best_path = path.copy()
+    #             if fit < best_fitness:
+    #                 best_fitness = fit
+    #                 best_path = path.copy()
 
-        if all_ant_paths:
-            aco.update_pheromone(all_ant_paths)
+    #     if all_ant_paths:
+    #         aco.update_pheromone(all_ant_paths)
 
-            # Track progress
-            best_fitness_progress.append(best_fitness)
-            if all_fitness:
-                avg_fitness_progress.append(np.mean(all_fitness))
-            else:
-                avg_fitness_progress.append(best_fitness)
+    #         # Track progress
+    #         best_fitness_progress.append(best_fitness)
+    #         if all_fitness:
+    #             avg_fitness_progress.append(np.mean(all_fitness))
+    #         else:
+    #             avg_fitness_progress.append(best_fitness)
 
-    # Calculate optimal solution distance
+    best_path, best_fitness = aco.run()
+    # # Calculate optimal solution distance
     optimal_distance = calculate_path_distance(solution, distance_matrix)
 
     # Results
@@ -149,35 +151,35 @@ def tsp_aco(PROBLEM: int, visualize: bool = False):
     else:
         print("No valid solution found!")
 
-    if visualize:
-        plt.figure(figsize=(10, 6))
-        iterations_range = range(len(best_fitness_progress))
-        plt.plot(
-            iterations_range,
-            best_fitness_progress,
-            "g-",
-            linewidth=2,
-            label="Best Distance",
-        )
-        plt.plot(
-            iterations_range,
-            avg_fitness_progress,
-            "orange",
-            linestyle="--",
-            linewidth=1.5,
-            label="Average Distance",
-        )
-        plt.xlabel("Iteration", fontsize=12)
-        plt.ylabel("Distance", fontsize=12)
-        plt.title(
-            f"Ant Colony Optimization - Problem {PROBLEM} Convergence",
-            fontsize=14,
-            fontweight="bold",
-        )
-        plt.legend(loc="best", fontsize=10)
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.show()
+    # if visualize:
+    #     plt.figure(figsize=(10, 6))
+    #     iterations_range = range(len(best_fitness_progress))
+    #     plt.plot(
+    #         iterations_range,
+    #         best_fitness_progress,
+    #         "g-",
+    #         linewidth=2,
+    #         label="Best Distance",
+    #     )
+    #     plt.plot(
+    #         iterations_range,
+    #         avg_fitness_progress,
+    #         "orange",
+    #         linestyle="--",
+    #         linewidth=1.5,
+    #         label="Average Distance",
+    #     )
+    #     plt.xlabel("Iteration", fontsize=12)
+    #     plt.ylabel("Distance", fontsize=12)
+    #     plt.title(
+    #         f"Ant Colony Optimization - Problem {PROBLEM} Convergence",
+    #         fontsize=14,
+    #         fontweight="bold",
+    #     )
+    #     plt.legend(loc="best", fontsize=10)
+    #     plt.grid(True, alpha=0.3)
+    #     plt.tight_layout()
+    #     plt.show()
 
 
 if __name__ == "__main__":
