@@ -47,6 +47,16 @@ class RosenbrockFunction(Problem):
                 input_vector.append(float(line))
 
         return dimension, np.array(input_vector), initial_value
+    
+    def get_problem_infos(self, **kwargs):
+        """
+        Returns problem information.
+        """
+        return {
+            "dimension": self.dimension,
+            "input_vector": self.input_vector,
+            "initial_value": self.initial_value,
+        }
 
     def calculate_fitness(self, answer) -> float:
         """
