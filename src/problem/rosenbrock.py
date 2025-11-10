@@ -3,7 +3,7 @@ from problem.problem import Problem
 import numpy as np
 
 
-class Rosenbrock(Problem):
+class RosenbrockFunction(Problem):
     def __init__(self, PROBLEM_FOLDER, PROBLEM) -> None:
         super().__init__()
 
