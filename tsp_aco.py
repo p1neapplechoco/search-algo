@@ -184,4 +184,4 @@ def tsp_aco(PROBLEM: int, visualize: bool = False):
 
 if __name__ == "__main__":
     # Set visualize=True to see the convergence plot
-    tsp_aco(PROBLEM=4, visualize=True)
+    tsp_aco(PROBLEM=1, visualize=True)
