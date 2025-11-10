@@ -27,7 +27,7 @@ class AckleyFunction(Problem):
 
         test_number = problem
         filename = PROBLEM_FOLDER + f"/test_{test_number:02d}.txt"
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
 
         dimension: int = 0
