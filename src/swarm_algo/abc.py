@@ -38,6 +38,7 @@ class ArtificialBeeColony:
         self.trial = np.zeros(self.sn)
 
         self.objective_function = None
+        self.local_search_func = None
 
     def randomize_solution(self):
         """
@@ -85,6 +86,16 @@ class ArtificialBeeColony:
         maxfit = np.max(self.fitness)
         self.probs = 0.1 + 0.9 * (self.fitness / maxfit)
 
+    def set_local_search(self, func):
+        """
+        Set a custom local search function.
+
+        Args:
+            func (callable): Custom local search function.
+        """
+
+        self.local_search_func = func
+
     def local_search(self, i):
         """
         Perform local search around a solution.
@@ -95,18 +106,16 @@ class ArtificialBeeColony:
         Returns:
             np.ndarray: New candidate solution.
         """
+        if self.local_search_func is not None:
+            return self.local_search_func(self.solutions, i, self.lb, self.ub)
 
-        idxs = np.delete(np.arange(self.sn), i)
-        k = np.random.choice(idxs)
-        j = np.random.randint(self.dimension)
-        phi = np.random.uniform(-1, 1)
+        phi = np.random.uniform(-1, 1, self.dimension)
+        k = i
+        while k == i:
+            k = np.random.randint(0, self.sn)
 
-        new_solution = np.copy(self.solutions[i])
-        new_solution[j] = new_solution[j] + phi * (
-            new_solution[j] - self.solutions[k, j]
-        )
-        new_solution[j] = np.clip(new_solution[j], self.lb, self.ub)
-
+        new_solution = self.solutions[i] + phi * (self.solutions[i] - self.solutions[k])
+        new_solution = np.clip(new_solution, self.lb, self.ub)
         return new_solution
 
     def run(self, visualize=False):
