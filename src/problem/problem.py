@@ -9,7 +9,7 @@ class Problem(ABC):
         return
 
     @abstractmethod
-    def get_problem_infos(self, **kwargs) -> Tuple:
+    def load_problem_infos(self, **kwargs) -> Tuple:
         return ()
 
     @abstractmethod
