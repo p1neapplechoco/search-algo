@@ -1,4 +1,4 @@
-from search_algo.dfs import DFS
+from search_algo.dfs import DepthFirstSearch as DFS
 from typing import List, Tuple
 import numpy as np
 import time
@@ -74,7 +74,8 @@ def relativity_to_solution(
     Returns:
         Accuracy ratio (0.0 to 1.0)
     """
-    ans_profit = sum(profits[i] for i in range(len(profits)) if i < len(ans) and ans[i])
+    ans_profit = sum(profits[i] for i in range(
+        len(profits)) if i < len(ans) and ans[i])
     sol_profit = sum(profits[i] for i in range(len(profits)) if sol[i])
 
     if sol_profit == 0:
@@ -161,7 +162,8 @@ def knapsack_dfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     nodes_explored = len(dfs.visited)
 
     # Calculate result metrics
-    best_weight = sum(weights[i] for i in range(num_items) if best_selection[i])
+    best_weight = sum(weights[i]
+                      for i in range(num_items) if best_selection[i])
     items_selected = sum(best_selection)
     accuracy = relativity_to_solution(best_selection, solution, profits)
 
@@ -171,7 +173,8 @@ def knapsack_dfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     print(f"DFS solution profit: {best_profit}")
     print(f"Optimal profit: {optimal_profit}")
     print(f"Accuracy: {accuracy * 100:.2f}%")
-    print(f"Weight used: {best_weight}/{capacity} ({best_weight/capacity*100:.1f}%)")
+    print(
+        f"Weight used: {best_weight}/{capacity} ({best_weight/capacity*100:.1f}%)")
     print(f"Items selected: {items_selected}/{num_items}")
     print(f"Nodes explored: {nodes_explored:,}")
     print(f"Time elapsed: {elapsed_time:.2f} seconds")
@@ -189,7 +192,8 @@ def knapsack_dfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         print(f"\nSelected items:")
         for i in range(num_items):
             if best_selection[i]:
-                print(f"  Item {i+1}: profit={profits[i]}, weight={weights[i]}")
+                print(
+                    f"  Item {i+1}: profit={profits[i]}, weight={weights[i]}")
 
     # Visualization
     if visualize:
@@ -199,7 +203,8 @@ def knapsack_dfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         ax1 = axes[0]
         categories = ["DFS Solution", "Optimal Solution"]
         values = [best_profit, optimal_profit]
-        colors = ["#FF6B6B" if best_profit == optimal_profit else "#FFA07A", "#2ECC71"]
+        colors = ["#FF6B6B" if best_profit ==
+                  optimal_profit else "#FFA07A", "#2ECC71"]
         bars = ax1.bar(
             categories, values, color=colors, alpha=0.7, edgecolor="black", linewidth=2
         )
@@ -311,7 +316,8 @@ def run_small_problems():
 
             # Skip if too many items
             if num_items > 23:
-                print(f"\nSkipping Problem {prob} (too large: {num_items} items)")
+                print(
+                    f"\nSkipping Problem {prob} (too large: {num_items} items)")
                 continue
 
             knapsack_dfs(prob, visualize=False, max_iterations=1000000)
@@ -358,7 +364,8 @@ def compare_bfs_dfs(PROBLEM: int, visualize: bool = True):
 
     start_time_bfs = time.time()
     bfs = BFS(start_state, get_neighbors, max_iterations=1000000)
-    bfs.set_fitness_function(lambda s: -sum(profits[i] for i in range(len(s)) if s[i]))
+    bfs.set_fitness_function(
+        lambda s: -sum(profits[i] for i in range(len(s)) if s[i]))
     best_state_bfs, best_fitness_bfs = bfs.search_best(
         max_depth=num_items, state_to_tuple=lambda s: tuple(s)
     )
@@ -367,20 +374,23 @@ def compare_bfs_dfs(PROBLEM: int, visualize: bool = True):
     profit_bfs = -best_fitness_bfs
     nodes_bfs = bfs.visited_count
 
-    print(f"  Profit: {profit_bfs}, Nodes: {nodes_bfs:,}, Time: {time_bfs:.2f}s")
+    print(
+        f"  Profit: {profit_bfs}, Nodes: {nodes_bfs:,}, Time: {time_bfs:.2f}s")
 
     # Run DFS
     print("\n🔴 RUNNING DFS...")
     start_time_dfs = time.time()
     dfs = DFS(start_state, get_neighbors)
-    dfs.set_fitness_function(lambda s: sum(profits[i] for i in range(len(s)) if s[i]))
+    dfs.set_fitness_function(lambda s: sum(
+        profits[i] for i in range(len(s)) if s[i]))
     best_state_dfs, best_fitness_dfs = dfs.run(max_iterations=1000000)
     time_dfs = time.time() - start_time_dfs
 
     profit_dfs = best_fitness_dfs if best_state_dfs else 0
     nodes_dfs = len(dfs.visited)
 
-    print(f"  Profit: {profit_dfs}, Nodes: {nodes_dfs:,}, Time: {time_dfs:.2f}s")
+    print(
+        f"  Profit: {profit_dfs}, Nodes: {nodes_dfs:,}, Time: {time_dfs:.2f}s")
 
     # Print comparison
     print("\n" + "=" * 70)
@@ -499,7 +509,7 @@ if __name__ == "__main__":
     # Option 1: Run single problem with visualization
     # Note: DFS can handle problems with ~20 items reasonably well
     # Larger problems may take significant time due to exponential complexity
-    knapsack_dfs(PROBLEM=1, visualize=True)
+    knapsack_dfs(PROBLEM=13, visualize=True)
 
     # Option 2: Run multiple small problems
     # run_small_problems()

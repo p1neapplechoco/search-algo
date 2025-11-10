@@ -1,4 +1,4 @@
-from src.search_algo.bfs import BFS
+from src.search_algo.bfs import BreadthFirstSearch as BFS
 from typing import List, Tuple
 import numpy as np
 from tqdm import tqdm
@@ -75,7 +75,8 @@ def relativity_to_solution(
     Returns:
         Accuracy ratio (0.0 to 1.0)
     """
-    ans_profit = sum(profits[i] for i in range(len(profits)) if i < len(ans) and ans[i])
+    ans_profit = sum(profits[i] for i in range(
+        len(profits)) if i < len(ans) and ans[i])
     sol_profit = sum(profits[i] for i in range(len(profits)) if sol[i])
 
     if sol_profit == 0:
@@ -137,7 +138,7 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     def fitness_function(state):
         """Calculate negative profit (we want to maximize profit, so minimize negative profit)."""
         total_profit = sum(profits[i] for i in range(len(state)) if state[i])
-        return -total_profit
+        return total_profit
 
     # Define state_to_tuple function (already a tuple, but ensure consistency)
     def state_to_tuple(state):
@@ -147,23 +148,21 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     print(f"\nRunning BFS...")
     start_time = time.time()
 
-    bfs = BFS(start_state, get_neighbors, max_iterations)
+    bfs = BFS(start_state, get_neighbors)
     bfs.set_fitness_function(fitness_function)
 
     # Use search_best with depth limit (num_items is the max depth)
-    best_state, best_fitness = bfs.search_best(
-        max_depth=num_items, state_to_tuple=state_to_tuple
-    )
+    best_state, best_fitness = bfs.run(visualize=True)
 
     elapsed_time = time.time() - start_time
 
     # Extract results
     best_selection = best_state
     best_profit = -best_fitness  # Convert back to positive
-    nodes_explored = bfs.visited_count
 
     # Calculate result metrics
-    best_weight = sum(weights[i] for i in range(num_items) if best_selection[i])
+    best_weight = sum(weights[i]
+                      for i in range(num_items) if best_selection[i])
     items_selected = sum(best_selection)
     accuracy = relativity_to_solution(best_selection, solution, profits)
 
@@ -173,9 +172,9 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
     print(f"BFS solution profit: {best_profit}")
     print(f"Optimal profit: {optimal_profit}")
     print(f"Accuracy: {accuracy * 100:.2f}%")
-    print(f"Weight used: {best_weight}/{capacity} ({best_weight/capacity*100:.1f}%)")
+    print(
+        f"Weight used: {best_weight}/{capacity} ({best_weight/capacity*100:.1f}%)")
     print(f"Items selected: {items_selected}/{num_items}")
-    print(f"Nodes explored: {nodes_explored:,}")
     print(f"Time elapsed: {elapsed_time:.2f} seconds")
 
     # Check if optimal
@@ -200,7 +199,8 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         print(f"\nSelected items:")
         for i in range(num_items):
             if best_selection[i]:
-                print(f"  Item {i+1}: profit={profits[i]}, weight={weights[i]}")
+                print(
+                    f"  Item {i+1}: profit={profits[i]}, weight={weights[i]}")
 
     # Visualization
     if visualize:
@@ -210,7 +210,8 @@ def knapsack_bfs(PROBLEM: int, visualize: bool = False, max_iterations: int = 10
         ax1 = axes[0]
         categories = ["BFS Solution", "Optimal Solution"]
         values = [best_profit, optimal_profit]
-        colors = ["#45B7D1" if best_profit == optimal_profit else "#FFA07A", "#2ECC71"]
+        colors = ["#45B7D1" if best_profit ==
+                  optimal_profit else "#FFA07A", "#2ECC71"]
         bars = ax1.bar(
             categories, values, color=colors, alpha=0.7, edgecolor="black", linewidth=2
         )
@@ -322,7 +323,8 @@ def run_small_problems():
 
             # Skip if too many items
             if num_items > 23:
-                print(f"\nSkipping Problem {prob} (too large: {num_items} items)")
+                print(
+                    f"\nSkipping Problem {prob} (too large: {num_items} items)")
                 continue
 
             knapsack_bfs(prob, visualize=False, max_iterations=1000000)
@@ -395,7 +397,8 @@ def demo_bfs_visualization():
     print(f"\nBest solution found:")
     print(f"  Total profit: {best_profit}")
     print(f"  Total weight: {best_weight}/{capacity}")
-    print(f"  Selected items: {[i+1 for i in range(num_items) if best_state[i]]}")
+    print(
+        f"  Selected items: {[i+1 for i in range(num_items) if best_state[i]]}")
     print(f"  Nodes explored: {bfs.visited_count:,}")
 
     # Visualize search tree
@@ -418,10 +421,10 @@ if __name__ == "__main__":
     # Option 1: Run single problem with visualization
     # Note: BFS can handle problems with ~20 items reasonably well
     # Larger problems may take significant time due to exponential complexity
-    # knapsack_bfs(PROBLEM=1, visualize=True)
+    knapsack_bfs(PROBLEM=10, visualize=True)
 
     # Option 2: Run multiple small problems
     # run_small_problems()
 
     # Option 3: Demo BFS search tree visualization
-    demo_bfs_visualization()
+    # demo_bfs_visualization()
