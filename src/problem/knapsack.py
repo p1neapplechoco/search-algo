@@ -35,7 +35,8 @@ class Knapsack(Problem):
             solution: List[int]
         """
         if "PROBLEM_FOLDER" not in kwargs or "PROBLEM" not in kwargs:
-            raise ValueError("PROBLEM_FOLDER and PROBLEM must be provided in kwargs")
+            raise ValueError(
+                "PROBLEM_FOLDER and PROBLEM must be provided in kwargs")
 
         PROBLEM_FOLDER = kwargs.get("PROBLEM_FOLDER")
         PROBLEM = kwargs.get("PROBLEM")

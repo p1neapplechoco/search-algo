@@ -1,13 +1,5 @@
 import numpy as np
 
-# [[,].
-#  [,],
-#  [,],
-#  [,]]
-# 4,1,2    1,4,2
-# ant_path
-# [x1,x2],[y1,y2]
-
 
 class AntColonyOptimizer:
     def __init__(self, colony, num_ant, iter, alpha, beta, rho, Q):
@@ -21,52 +13,60 @@ class AntColonyOptimizer:
         self.Q = Q
         self.theta_matrix = np.ones((len(self.colony), len(self.colony)))
         self.n_colonies = len(self.colony)
+        self.fitness_func = None
+
+        # For tracking convergence
+        self.best_fitness_history = []
+        self.avg_fitness_history = []
+        self.diversity_history = []
 
     def cal_distance(self):
         colony3d = self.colony[:, np.newaxis, :]
         colony3d_transform = self.colony[np.newaxis, :, :]
-
-        distance_matrix = np.sqrt(np.sum((colony3d - colony3d_transform) ** 2, axis=2))
+        distance_matrix = np.sqrt(
+            np.sum((colony3d - colony3d_transform) ** 2, axis=2))
         zeta = np.where(distance_matrix > 0, 1.0 / distance_matrix, 0)
         return zeta, distance_matrix
 
     def path_to_ant_path(self, path):
-
         from_cities = np.array(path)
         to_cities = np.array(path[1:] + [path[0]])
         return (from_cities, to_cities)
 
+    def set_fitness_func(self, fitness_func):
+        self.fitness_func = fitness_func
+
     def fitness(self, ant_path):
+        if self.fitness_func:
+            return self.fitness_func(ant_path)
         return np.sum(self.distance_matrix[ant_path[0], ant_path[1]])
 
     def update_pheromone(self, ant_paths):
         self.theta_matrix *= 1 - self.rho
         for path in ant_paths:
-            delta = self.Q / self.distance_matrix[path[0], path[1]]
+            delta = self.Q / np.sum(self.distance_matrix[path[0], path[1]])
             self.theta_matrix[path[0], path[1]] += delta
             self.theta_matrix[path[1], path[0]] += delta
 
     def RWS(self, idx, visitted):
         theta = self.theta_matrix[idx].copy()
         eta = self.zeta[idx].copy()
-
         visitted = list(visitted)
         theta[visitted] = 0
         eta[visitted] = 0
-
         probs = theta**self.alpha * eta**self.beta
         prob_sum = np.sum(probs)
         if prob_sum == 0:
-            unvisited = [i for i in range(self.n_colonies) if i not in visitted]
+            unvisited = [i for i in range(
+                self.n_colonies) if i not in visitted]
             if unvisited:
                 return np.random.choice(unvisited)
             return None
         probs = probs / prob_sum
-
         next_city = np.random.choice(self.n_colonies, p=probs)
         return next_city
 
-    def run(self, verbose=True):
+    def run(self, verbose=False):
         best_path = None
         best_fitness = float("inf")
 
@@ -82,7 +82,7 @@ class AntColonyOptimizer:
 
                 while len(visitted) < self.n_colonies:
                     cur_idx = self.RWS(cur_idx, visitted)
-                    if cur_idx is None:  # ✅ PHẢI CHECK
+                    if cur_idx is None:
                         break
                     path.append(cur_idx)
                     visitted.add(cur_idx)
@@ -90,7 +90,6 @@ class AntColonyOptimizer:
                 if len(path) == self.n_colonies:
                     ant_path = self.path_to_ant_path(path)
                     fit = self.fitness(ant_path)
-
                     all_paths.append(path)
                     all_ant_paths.append(ant_path)
                     all_fitness.append(fit)
@@ -102,6 +101,16 @@ class AntColonyOptimizer:
             if all_ant_paths:
                 self.update_pheromone(all_ant_paths)
 
-                if verbose and (i + 1) % 5 == 0:
-                    print(f"Iteration {i+1:3d}: Best = {best_fitness:.2f}")
+            # Tracking
+            self.best_fitness_history.append(best_fitness)
+            if all_fitness:
+                self.avg_fitness_history.append(np.mean(all_fitness))
+                self.diversity_history.append(np.std(all_fitness))
+            else:
+                self.avg_fitness_history.append(best_fitness)
+                self.diversity_history.append(0)
+
+            if verbose and (i + 1) % 20 == 0:
+                print(f"Iteration {i+1:3d}: Best = {best_fitness:.2f}")
+
         return best_path, best_fitness

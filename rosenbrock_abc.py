@@ -95,8 +95,12 @@ def rosenbrock_abc(test_number: int, visualize: bool = False):
     print(f"Best solution found: {best_solution}")
     print(f"Best value: {best_value:.6f}")
     print(f"Initial value: {initial_value:.6f}")
-    print(f"Improvement: {initial_value - best_value:.6f} ({((initial_value - best_value)/initial_value*100) if initial_value != 0 else 100:.2f}%)")
-    print(f"Distance from optimal (1,1,...,1): {np.linalg.norm(best_solution - 1.0):.6f}")
+    print(
+        f"Improvement: {initial_value - best_value:.6f} ({((initial_value - best_value)/initial_value*100) if initial_value != 0 else 100:.2f}%)"
+    )
+    print(
+        f"Distance from optimal (1,1,...,1): {np.linalg.norm(best_solution - 1.0):.6f}"
+    )
     print(f"Error from optimal: {abs(best_value - 0.0):.6f}")
 
     if best_value < 0.01:
