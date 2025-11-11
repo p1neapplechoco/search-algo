@@ -4,19 +4,15 @@ from typing import Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.swarm_algo.pso import ParticleSwarmOptimizer  
+from src.swarm_algo.pso import ParticleSwarmOptimizer
 
 ACKLEY_DATA_FOLDER = "data/ackley/"
 NUM_PARTICLES = 50
 NUM_GENERATIONS = 1000
 BOUND_LB, BOUND_UB = -5.0, 5.0  # Ackley domain recommendation
 
-
 # ----------------------- Ackley function (continuous benchmark) -----------------------
 def ackley_function(x, a=20.0, b=0.2, c=2 * np.pi) -> float:
-    """
-    Ackley function (global min at x=0, f=0). x: np.ndarray shape (d,)
-    """
     x = np.asarray(x, dtype=float)
     n = x.size
     sum_sq = np.sum(x * x)
@@ -25,11 +21,22 @@ def ackley_function(x, a=20.0, b=0.2, c=2 * np.pi) -> float:
     term2 = -np.exp(sum_cos / n)
     return float(term1 + term2 + a + np.e)
 
+# NEW: build a 2D slice f2(u) = f([u0, u1, fix_val, ..., fix_val]) for d>=2
+def make_ackley_2d_slice(d: int, fix_val: float = 0.0):
+    if d < 2:
+        raise ValueError("Need d >= 2 to create a 2D surface.")
+    def f2(u2: np.ndarray) -> float:
+        u2 = np.asarray(u2, dtype=float)
+        assert u2.shape == (2,), "f2 expects a 2D vector [x, y]."
+        if d == 2:
+            v = u2
+        else:
+            v = np.full((d,), fix_val, dtype=float)
+            v[:2] = u2
+        return ackley_function(v)
+    return f2
 
 def read_test_case(test_number: int) -> Tuple[int, np.ndarray, float]:
-    """
-    Read Ackley test case: returns (dimension, initial_vector, initial_value).
-    """
     filename = os.path.join(ACKLEY_DATA_FOLDER, f"test_{test_number:02d}.txt")
     with open(filename, "r") as f:
         lines = f.readlines()
@@ -55,14 +62,13 @@ def read_test_case(test_number: int) -> Tuple[int, np.ndarray, float]:
         initial_value = ackley_function(vec)
     return dimension, vec, float(initial_value)
 
-
 # ----------------------- PSO runner with visualization -----------------------
 def ackley_pso(test_number: int, visualize: bool = True, outdir: str = "visualization/ackley_pso"):
     """
     Solve Ackley with PSO. Output images/videos if visualize=True.
     - Convergence PNG
     - 2D swarm animation (if d>=2)
-    - 3D surface + swarm overlay (if d==2)
+    - 3D surface + swarm overlay (if d>=2; d>2 uses a 2D slice)
     """
     os.makedirs(outdir, exist_ok=True)
 
@@ -83,17 +89,17 @@ def ackley_pso(test_number: int, visualize: bool = True, outdir: str = "visualiz
         bounds=bounds,
         n_particles=NUM_PARTICLES,
         max_iters=NUM_GENERATIONS,
-        mode="constriction",              # stable
+        mode="constriction",
         phi1=2.05, phi2=2.05, chi=0.729,
         topology="ring", ring_neighbors=2,
-        velocity_clamp=0.2,               # 20% range
+        velocity_clamp=0.2,
         boundary_mode="clip",
         seed=42,
         early_stopping_rounds=100, tol=1e-6,
         problem_type="continuous",
         decode=None,
-        enable_position_history=False,    # only store best if needed
-        track_positions=visualize,        # enable if need animate
+        enable_position_history=False,
+        track_positions=visualize,
         track_stride=1,
     )
 
@@ -124,18 +130,20 @@ def ackley_pso(test_number: int, visualize: bool = True, outdir: str = "visualiz
         # (B) 2D swarm animation (if d>=2: use first 2 coordinates; if d==1, skip)
         if d >= 2 and len(pso._positions_over_time) > 0:
             pso.visualization.animate_swarm_2d(
-                outfile=os.path.join(outdir, f"ackley_t{test_number:02d}_swarm.mp4"), 
+                outfile=os.path.join(outdir, f"ackley_t{test_number:02d}_swarm.mp4"),
                 bounds=[(BOUND_LB, BOUND_UB), (BOUND_LB, BOUND_UB)],
                 fps=20,
                 trail=True,
                 s=18
             )
 
-        # (C) 3D surface + overlay (chỉ ý nghĩa khi d==2)
-        if d == 2:
+        # (C) 3D surface + overlay (for d>=2; if d>2, use a 2D slice with other dims fixed to 0)
+        if d >= 2:
+            func2d = make_ackley_2d_slice(d, fix_val=0.0)
+
             # 3D surface PNG
             fig3, ax3 = pso.visualization.plot_surface_3d(
-                func=lambda v: ackley_function(np.array(v, dtype=float)),
+                func=lambda v: func2d(np.array(v, dtype=float)),
                 x_bounds=(BOUND_LB, BOUND_UB),
                 y_bounds=(BOUND_LB, BOUND_UB),
                 grid=160,
@@ -145,11 +153,11 @@ def ackley_pso(test_number: int, visualize: bool = True, outdir: str = "visualiz
             fig3.savefig(os.path.join(outdir, f"ackley_t{test_number:02d}_surface.png"), dpi=160)
             plt.close(fig3)
 
-            # 3D overlay animation (nếu đã track positions)
+            # 3D overlay animation (requires tracked positions)
             if len(pso._positions_over_time) > 0:
                 pso.visualization.animate_swarm_on_surface(
                     outfile=os.path.join(outdir, f"ackley_t{test_number:02d}_surface_swarm.mp4"),
-                    func=lambda v: ackley_function(np.array(v, dtype=float)),
+                    func=lambda v: func2d(np.array(v, dtype=float)),
                     x_bounds=(BOUND_LB, BOUND_UB),
                     y_bounds=(BOUND_LB, BOUND_UB),
                     fps=15
@@ -159,8 +167,7 @@ def ackley_pso(test_number: int, visualize: bool = True, outdir: str = "visualiz
 
     return best_x, best_f, info
 
-
-# ----------------------- Batch runner  -----------------------
+# ----------------------- Batch runner -----------------------
 def run_all_tests(visualize_last: bool = True):
     results = []
     print("\n" + "=" * 72)
@@ -198,10 +205,8 @@ def run_all_tests(visualize_last: bool = True):
         print("=" * 72)
         ackley_pso(10, visualize=True)
 
-
 if __name__ == "__main__":
     # Option 1: Run a single test case
     ackley_pso(test_number=1, visualize=True)
-
     # Option 2: Run all test cases
     # run_all_tests(visualize_last=True)
