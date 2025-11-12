@@ -16,7 +16,7 @@ def generate_rosenbrock_testcases():
     """
     Generate 10 challenging test cases for Rosenbrock function
     """
-    output_dir = "data/rosenbrock"
+    output_dir = "./rosenbrock"
     os.makedirs(output_dir, exist_ok=True)
     
     print("=" * 60)

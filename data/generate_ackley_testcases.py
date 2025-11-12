@@ -23,7 +23,7 @@ def generate_ackley_testcases():
     """
     Generate 10 test cases for Ackley function
     """
-    output_dir = "data/ackley"
+    output_dir = "./ackley"
     os.makedirs(output_dir, exist_ok=True)
     
     print("=" * 60)
