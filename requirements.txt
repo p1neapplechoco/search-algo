@@ -4,3 +4,4 @@ seaborn
 imageio-ffmpeg
 tqdm
 setuptools
+jupyter
