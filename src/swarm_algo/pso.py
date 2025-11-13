@@ -55,7 +55,7 @@ from typing import Callable, Iterable, List, Optional, Tuple, Any, Literal
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-import matplotlib as mpl, imageio_ffmpeg  
+import matplotlib as mpl, imageio_ffmpeg # for saving as .mp4
 mpl.rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()
 try:
     import seaborn as sns  # optional
@@ -253,7 +253,7 @@ class ParticleSwarmOptimizer:
         
         # Avoid velocity explosion
         if self.mode == "inertia" and (self.c1 + self.c2) > 4.0:
-            raise ValueError("For inertia PSO, require c1 + c2 <= 4 for stability.")
+            raise ValueError("For inertia PSO, require c1 + c2 <= 4 for stability")
 
     # ----------- Validate problem type and config -----------
     def _validate_problem_contract(self) -> None:
@@ -440,8 +440,8 @@ class ParticleSwarmOptimizer:
 
         if self.boundary_mode == "reflect":
             # Reflect positions and invert velocities at the boundaries
-            X[out_low] = 2 * self.low[np.newaxis, :] - X[out_low]
-            X[out_high] = 2 * self.high[np.newaxis, :] - X[out_high]
+            X[:] = np.where(out_low,  2*self.low  - X, X)
+            X[:] = np.where(out_high, 2*self.high - X, X)
             V[out_any] *= -1.0
             # If still out of bounds (large step), clip to boundary
             np.clip(X, self.low, self.high, out=X)
@@ -499,10 +499,10 @@ class _PSOVisualizer:
 
     Notes
     -----
-    * Video saving prefers FFMpegWriter (mp4). Falls back to PillowWriter (gif)
-      if ffmpeg is unavailable. (Matplotlib animation docs) :contentReference[oaicite:1]{index=1}
-    * 3D surfaces use `plot_surface` from mplot3d. :contentReference[oaicite:2]{index=2}
-    * Convergence lineplot can use Seaborn if present; otherwise plain Matplotlib. :contentReference[oaicite:3]{index=3}
+    - Video saving prefers FFMpegWriter (mp4). Falls back to PillowWriter (gif)
+      if ffmpeg is unavailable. (Matplotlib animation docs) 
+    - 3D surfaces use `plot_surface` from mplot3d. 
+    - Convergence lineplot can use Seaborn if present; otherwise plain Matplotlib. 
     """
     def __init__(self, pso_obj):
         self.pso = pso_obj
@@ -529,7 +529,6 @@ class _PSOVisualizer:
         for h, lb in zip(histories, labels):
             y = np.asarray(h, dtype=float)
             if sns is not None:
-                # Seaborn lineplot supports nice styling. :contentReference[oaicite:4]{index=4}
                 sns.lineplot(x=np.arange(len(y)), y=y, ax=ax, label=lb)
             else:
                 ax.plot(np.arange(len(y)), y, label=lb)
@@ -548,14 +547,14 @@ class _PSOVisualizer:
         Parameters
         ----------
         func : Callable[[np.ndarray], float]
-            Objective taking a 2D vector [x, y] -> scalar.
+            Objective taking a 2D vector [x, y] -> scalar
         x_bounds, y_bounds : (low, high)
         grid : int
-            Number of grid points per axis.
+            Number of grid points per axis
         elev, azim : float
-            View angles.
+            View angles
         cmap : str
-            Matplotlib colormap.
+            Matplotlib colormap
 
         Returns
         -------
@@ -572,7 +571,6 @@ class _PSOVisualizer:
 
         fig = plt.figure(figsize=(7,5))
         ax = fig.add_subplot(111, projection="3d")
-        # mplot3d plot_surface (Matplotlib docs). :contentReference[oaicite:5]{index=5}
         ax.plot_surface(X, Y, Z, cmap=cmap, linewidth=0, antialiased=False)
         ax.view_init(elev=elev, azim=azim)
         ax.set_xlabel("x")
@@ -582,30 +580,30 @@ class _PSOVisualizer:
 
     # ---------- 3) Animation utils ----------
     def _choose_writer(self, fps=20):
-        """Prefer MP4 via FFMpegWriter; fallback to GIF via PillowWriter. :contentReference[oaicite:6]{index=6}"""
+        """Prefer MP4 via FFMpegWriter; fallback to GIF via PillowWriter"""
         try:
             Writer = animation.writers["ffmpeg"]   # may raise if ffmpeg missing
             return Writer(fps=fps, metadata=dict(artist="PSO"))
         except Exception:
             return animation.PillowWriter(fps=fps)
 
-    def animate_swarm_2d(self, outfile, bounds, fps=20, trail=False, s=20):
+    def animate_swarm_2d(self, outfile, bounds, fps=20, trail=False, s=20, title="PSO Swarm (2D)"):
         """
         Animate 2D swarm from tracked positions (requires track_positions=True).
 
         Parameters
         ----------
         outfile : str
-            Output path (.mp4 if ffmpeg available; falls back to .gif).
+            Output path (.mp4 if ffmpeg available; falls back to .gif)
         bounds : [(x_low, x_high), (y_low, y_high)]
         fps : int
         trail : bool
-            If True, draw fading trails of particles.
+            If True, draw fading trails of particles
         s : int
-            Marker size.
+            Marker size
         """
-        assert self.pso.d >= 2, "Need at least 2 dimensions for 2D animation."
-        assert len(self.pso._positions_over_time) > 0, "Enable track_positions during optimize()."
+        assert self.pso.d >= 2, "Need at least 2 dimensions for 2D animation"
+        assert len(self.pso._positions_over_time) > 0, "Enable track_positions during optimize()"
 
         traj = self.pso._positions_over_time  # list of (n,d)
         xs = [P[:,0] for P in traj]
@@ -615,7 +613,7 @@ class _PSOVisualizer:
         scat = ax.scatter(xs[0], ys[0], s=s)
         ax.set_xlim(bounds[0])
         ax.set_ylim(bounds[1])
-        ax.set_title("PSO swarm (2D)")
+        ax.set_title(title)
         ax.set_xlabel("x"); ax.set_ylabel("y")
         ax.grid(True, alpha=0.3)
 
@@ -632,10 +630,10 @@ class _PSOVisualizer:
 
         ani = animation.FuncAnimation(fig, update, frames=len(xs), interval=1000/fps, blit=False)
         writer = self._choose_writer(fps=fps)
-        ani.save(outfile, writer=writer)  # Matplotlib Animation.save() API. :contentReference[oaicite:7]{index=7}
+        ani.save(outfile, writer=writer)  
         plt.close(fig)
 
-    def animate_swarm_on_surface(self, outfile, func, x_bounds, y_bounds, fps=20, cmap="viridis"):
+    def animate_swarm_on_surface(self, outfile, func, x_bounds, y_bounds, fps=20, cmap="viridis", title="PSO on 3D surface"):
         """
         Animate swarm moving over a 3D surface z=f(x,y). (For 2D-domain continuous problems.)
 
@@ -647,8 +645,8 @@ class _PSOVisualizer:
         fps : int
         cmap : str
         """
-        assert self.pso.d >= 2, "Need at least 2 dimensions for 3D overlay."
-        assert len(self.pso._positions_over_time) > 0, "Enable track_positions during optimize()."
+        assert self.pso.d >= 2, "Need at least 2 dimensions for 3D overlay"
+        assert len(self.pso._positions_over_time) > 0, "Enable track_positions during optimize()"
 
         # Prepare surface
         xs = np.linspace(x_bounds[0], x_bounds[1], 120)
@@ -662,7 +660,7 @@ class _PSOVisualizer:
         traj = self.pso._positions_over_time
         fig = plt.figure(figsize=(8,6))
         ax = fig.add_subplot(111, projection="3d")
-        surf = ax.plot_surface(X, Y, Z, cmap=cmap, linewidth=0, antialiased=False)  # :contentReference[oaicite:8]{index=8}
+        surf = ax.plot_surface(X, Y, Z, cmap=cmap, linewidth=0, antialiased=False)  
         pts = ax.plot(traj[0][:,0], traj[0][:,1],
                       [func(traj[0][k,:2]) for k in range(traj[0].shape[0])],
                       "o", ms=3, color="k")[0]
@@ -670,7 +668,7 @@ class _PSOVisualizer:
         ax.set_xlim(*x_bounds); ax.set_ylim(*y_bounds)
         zmin, zmax = Z.min(), Z.max()
         ax.set_zlim(zmin, zmax)
-        ax.set_title("PSO on 3D surface")
+        ax.set_title(title)
         ax.set_xlabel("x"); ax.set_ylabel("y"); ax.set_zlabel("f(x,y)")
 
         def update(frame):
@@ -683,5 +681,5 @@ class _PSOVisualizer:
 
         ani = animation.FuncAnimation(fig, update, frames=len(traj), interval=1000/fps, blit=False)
         writer = self._choose_writer(fps=fps)
-        ani.save(outfile, writer=writer)  # MP4 via ffmpeg, else GIF via Pillow. :contentReference[oaicite:9]{index=9}
+        ani.save(outfile, writer=writer)  
         plt.close(fig)
