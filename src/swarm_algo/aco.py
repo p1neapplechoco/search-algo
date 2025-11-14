@@ -15,7 +15,6 @@ class AntColonyOptimizer:
         self.n_colonies = len(self.colony)
         self.fitness_func = None
 
-        # For tracking convergence
         self.best_fitness_history = []
         self.avg_fitness_history = []
         self.diversity_history = []
@@ -101,7 +100,6 @@ class AntColonyOptimizer:
             if all_ant_paths:
                 self.update_pheromone(all_ant_paths)
 
-            # Tracking
             self.best_fitness_history.append(best_fitness)
             if all_fitness:
                 self.avg_fitness_history.append(np.mean(all_fitness))
